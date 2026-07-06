@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getExercises,
   getProgress,
@@ -10,19 +11,24 @@ import {
 const EMPTY = { name: '', muscle_group: '', sets: '', reps: '', weight: '', day: '', completed: false }
 
 export function useExercises() {
-  const [exercises, setExercises] = useState([])
-  const [progress, setProgress] = useState(null)
+  const qc = useQueryClient()
   const [form, setForm] = useState(EMPTY)
   const [editId, setEditId] = useState(null)
 
-  async function load() {
-    setExercises(await getExercises())
-    setProgress(await getProgress())
+  const { data: exercises = [] } = useQuery({ queryKey: ['exercises'], queryFn: getExercises })
+  const { data: progress = null } = useQuery({ queryKey: ['progress'], queryFn: getProgress })
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['exercises'] })
+    qc.invalidateQueries({ queryKey: ['progress'] })
   }
 
-  useEffect(() => {
-    load()
-  }, [])
+  const createMut = useMutation({ mutationFn: createExercise, onSuccess: invalidate })
+  const updateMut = useMutation({
+    mutationFn: ({ id, data }) => updateExercise(id, data),
+    onSuccess: invalidate,
+  })
+  const deleteMut = useMutation({ mutationFn: deleteExercise, onSuccess: invalidate })
 
   const handleForm = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -38,11 +44,10 @@ export function useExercises() {
       day: form.day,
       completed: form.completed,
     }
-    if (editId) await updateExercise(editId, data)
-    else await createExercise(data)
+    if (editId) await updateMut.mutateAsync({ id: editId, data })
+    else await createMut.mutateAsync(data)
     setForm(EMPTY)
     setEditId(null)
-    await load()
   }
 
   function edit(exercise) {
@@ -58,22 +63,23 @@ export function useExercises() {
     })
   }
 
-  async function toggleDone(exercise) {
-    await updateExercise(exercise.id, {
-      name: exercise.name,
-      muscle_group: exercise.muscle_group,
-      sets: exercise.sets,
-      reps: exercise.reps,
-      weight: exercise.weight,
-      day: exercise.day,
-      completed: !exercise.completed,
+  function toggleDone(exercise) {
+    updateMut.mutate({
+      id: exercise.id,
+      data: {
+        name: exercise.name,
+        muscle_group: exercise.muscle_group,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weight: exercise.weight,
+        day: exercise.day,
+        completed: !exercise.completed,
+      },
     })
-    await load()
   }
 
-  async function remove(id) {
-    await deleteExercise(id)
-    await load()
+  function remove(id) {
+    deleteMut.mutate(id)
   }
 
   function cancel() {

@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useExercises } from '../hooks/use-exercises'
 import { ExerciseCard } from '../components/ExerciseCard'
-import useAuthStore from '../../../store/auth-store'
+import { logout } from '../../../store/auth-store'
 
 const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
 
 export function ExercisesPage() {
   const { exercises, progress, form, editId, handleForm, save, edit, toggleDone, remove, cancel } = useExercises()
   const [day, setDay] = useState(DAYS[(new Date().getDay() + 6) % 7])
-  const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
 
   const salir = () => {
@@ -31,7 +30,6 @@ export function ExercisesPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8">
-      {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
           Plan<span className="text-emerald-600">Fitness</span>
@@ -41,7 +39,6 @@ export function ExercisesPage() {
         </button>
       </header>
 
-      {/* Formulario */}
       <form onSubmit={save} className="flex flex-col sm:flex-row sm:flex-wrap gap-2 mb-8 sm:items-center">
         {inputs.map(({ name, placeholder, className, type = 'text' }) => (
           <input key={name} name={name} type={type} value={form[name]} onChange={handleForm}
@@ -61,7 +58,6 @@ export function ExercisesPage() {
         )}
       </form>
 
-      {/* Tabs por día */}
       <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
         {DAYS.map((d) => (
           <button key={d} onClick={() => setDay(d)}
@@ -71,7 +67,6 @@ export function ExercisesPage() {
         ))}
       </div>
 
-      {/* Progreso del día */}
       {dayProgress?.total > 0 && (
         <div className="mb-6">
           <div className="flex justify-between text-xs text-slate-500 mb-1">
@@ -84,7 +79,6 @@ export function ExercisesPage() {
         </div>
       )}
 
-      {/* Lista */}
       {list.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-12">No hay ejercicios para {day}.</p>
       ) : (

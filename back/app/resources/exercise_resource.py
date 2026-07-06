@@ -8,8 +8,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 crypto = CryptoHelper()
 
-DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
-
 def current_user_id():
     identity = get_jwt_identity()
     return int(crypto.decrypt(identity))
@@ -177,27 +175,8 @@ class ExerciseProgressResource(Resource):
           200: {description: Progreso por dia y de la semana}
         """
         try:
-            exercises = exercise_service.get_all(current_user_id())
-
-            days = {day: {'total': 0, 'completed': 0} for day in DAYS}
-
-            for exercise in exercises:
-                if exercise.day in days:
-                    days[exercise.day]['total'] += 1
-                    if exercise.completed:
-                        days[exercise.day]['completed'] += 1
-
-            week_total = 0
-            week_completed = 0
-            for day in days.values():
-                day['percent'] = round(day['completed'] / day['total'] * 100) if day['total'] else 0
-                week_total += day['total']
-                week_completed += day['completed']
-
-            return {
-                'days': days,
-                'week_percent': round(week_completed / week_total * 100) if week_total else 0
-            }, 200
+            progress = exercise_service.get_progress(current_user_id())
+            return progress, 200
         except Exception as e:
             return {
                 'error': str(e)

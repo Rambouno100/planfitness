@@ -1,15 +1,22 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { Store } from '@tanstack/store'
+import { useStore } from '@tanstack/react-store'
 
-const useAuthStore = create(
-  persist(
-    (set) => ({
-      token: null,
-      setToken: (token) => set({ token }),
-      logout: () => set({ token: null }),
-    }),
-    { name: 'planfitness-auth' }
-  )
-)
+const KEY = 'planfitness-auth'
 
-export default useAuthStore
+export const authStore = new Store({
+  token: localStorage.getItem(KEY) || null,
+})
+
+export function setToken(token) {
+  localStorage.setItem(KEY, token)
+  authStore.setState((s) => ({ ...s, token }))
+}
+
+export function logout() {
+  localStorage.removeItem(KEY)
+  authStore.setState((s) => ({ ...s, token: null }))
+}
+
+export function useToken() {
+  return useStore(authStore, (s) => s.token)
+}

@@ -7,3 +7,4 @@ back/venv/
 # Node / frontend
 front/node_modules/
 front/dist/
+GUIA_PASO_A_PASO.md

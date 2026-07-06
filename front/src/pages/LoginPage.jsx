@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loginService, registerService } from '../services/auth-service'
-import useAuthStore from '../store/auth-store'
+import { setToken } from '../store/auth-store'
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
-  const setToken = useAuthStore((s) => s.setToken)
   const navigate = useNavigate()
 
   const handleForm = (e) => setForm({ ...form, [e.target.name]: e.target.value })

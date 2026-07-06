@@ -4,7 +4,7 @@ REST API para registrar y gestionar ejercicios de fitness, con autenticación JW
 frontend en React. Proyecto del curso.
 
 - **Backend:** Flask + SQLAlchemy + PostgreSQL + JWT + Pydantic + Swagger
-- **Frontend:** React + Vite + Tailwind (opcional, consume la API)
+- **Frontend:** React + Vite + Tailwind + TanStack Query + TanStack Store (opcional, consume la API)
 
 ---
 
@@ -44,7 +44,7 @@ planfitness/
     └── src/
         ├── features/exercises/   # hook + servicios + página
         ├── pages/LoginPage.jsx
-        ├── store/                # Zustand (token)
+        ├── store/                # TanStack Store (token)
         └── lib/api.js            # axios + interceptor JWT
 ```
 
